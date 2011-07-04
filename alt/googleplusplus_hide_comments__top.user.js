@@ -3,7 +3,7 @@
 // @author		   Micah Wittman
 // @namespace      http://wittman.org/projects/googleplusplus_hide_comments
 // @include        *plus.google.com*
-// @description	   Adds a Hide Comments or Show Comments link on each post; this feature is sticky (the hidden or shown state is recorded in the browser's local storage). /*___top*/
+// @description	   Adds a Hide Comments or Show Comments link on each post; this feature is sticky (the hidden or shown state is recorded in the browser's local storage).  ALTERNATE VERSION: top. This version place the Hide/Show link at the top (as opposed to the bottom of the stack of comments). /*___top*/
 // @version		   0.1.1
 // ==/UserScript==
 
@@ -86,7 +86,7 @@ function hideComments(){
 				var hiddenPostID = GM_getValue('gpp__hidden_post_id_' + postID, '');
 				if( !comments.hasClass('gpp__comments') ){
 					comments.addClass('gpp__comments_' + i).addClass('gpp__comments');
-					comments.after('<a style="line-height: 2em" class="gpp__comment_show_hide_' + i + '">Hide Comments</a>'); /*___top*/
+					comments.before('<a style="line-height: 2em" class="gpp__comment_show_hide_' + i + '">Hide Comments</a>'); /*___top*/
 				}
 				var show_hide = $('.gpp__comment_show_hide_' + i);
 				show_hide.click(function(){
