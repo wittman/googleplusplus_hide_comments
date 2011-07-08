@@ -4,7 +4,7 @@
 // @namespace      http://wittman.org/projects/googleplusplus_hide_comments
 // @include        *plus.google.com*
 // @description	   Adds a Hide Comments or Show Comments link on each post; this feature is sticky (the hidden or shown state is recorded in the browser's local storage). /*___top*/
-// @version		   0.1.1
+// @version		   0.1.2
 // ==/UserScript==
 
 
@@ -114,10 +114,10 @@ function hideComments(){
 	setInterval(main_loop, 2000);
 }
 
-// Function that loads jQuery and calls a callback function when jQuery has finished loading
+/****** Load jQuery then callback upon load function ******/
 function addJQuery(callback){
 	var script = document.createElement("script");
-	script.setAttribute("src", "http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js");
+	script.setAttribute("src", protocol + "ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js");
 	script.addEventListener('load', function() {
 		var script = document.createElement("script");
 		script.textContent = "(" + callback.toString() + ")();";
@@ -126,6 +126,8 @@ function addJQuery(callback){
 	document.body.appendChild(script);
 }
 
-
-// Load jQuery and execute the main function
-addJQuery(hideComments);
+/****** Call Load jQuery + callback function ******/
+var protocol = window.location.protocol + '//';
+if(window.location.href.indexOf('/photos') == -1){ //Doesn't work on photos page right now.
+	addJQuery(hideComments);
+}
