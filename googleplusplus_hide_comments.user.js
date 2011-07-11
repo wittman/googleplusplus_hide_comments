@@ -4,7 +4,7 @@
 // @namespace      http://wittman.org/projects/googleplusplus_hide_comments
 // @include        *plus.google.com*
 // @description    Adds a Hide Comments or Show Comments link on each post; this feature is sticky (the hidden or shown state is recorded in the browser's local storage). /*___*/
-// @version        0.1.3
+// @version        0.1.4
 // ==/UserScript==
 
 
@@ -74,11 +74,19 @@ function hideComments(){
 	}
 	
 	function main_loop(){
+
 		var i = 0;
 		$("[id^='update']").find(":contains('Add a comment...')").each(function(){
 			var t = $(this);
 			var comments = t.prev();
-			var each_comment = comments.find('a.a-f-i-do, .a-f-i-W-r');
+			var each_comment = comments.find("img[alt$='profile photo']").parent().parent().parent().parent();
+			
+			var old_comment_count_span = comments.find("span[role]:contains('older comments')");
+			var old_comment_count_display = '';
+			if(old_comment_count_span.length > 0){
+				old_comment_count_display = '&nbsp;&nbsp;(OLD: ' + old_comment_count_span.text().replace(' older comments', '') + ')'; //<span role="button" class="d-h a-b-f-i-gc-cf-Xb-h" tabindex="0">5 older comments</span>	
+			}
+			var comment_count = each_comment.length;
 			if( each_comment.length > 0 ){
 				var post = comments.parent().parent();
 				var postID = post.attr('id');
@@ -89,7 +97,7 @@ function hideComments(){
 				}
 				if( !comments.hasClass('gpp__comments') ){
 					comments.addClass('gpp__comments_' + i).addClass('gpp__comments');
-					button_html = '<br><span role="button" class="d-h a-b-f-i-gc-cf-Xb-h gpp__comment_show_hide_' + i + '" tabindex="0">Hide Comments</span><br><br>';
+					button_html = '<br><span role="button" class="d-h a-b-f-i-gc-cf-Xb-h gpp__comment_show_hide_' + i + '" tabindex="0">Hide Comments</span> <span style="font-size:10pt;color:#999" class="gpp__comment_count"></span><br><br>';
 					comments.after(button_html);
 				}
 				var show_hide = comments.parent().find('.gpp__comment_show_hide_' + i);
@@ -97,11 +105,11 @@ function hideComments(){
 					var t = $(this);
 					comments.addClass('gpp__comments_hidden_by_default');
 					if( t.text().indexOf('Hide Comments') > -1 ){
-						comments.fadeOut();
+						comments.fadeOut().hide();
 						GM_setValue('gpp__hidden_post_id_' + postID, postID);
 						t.text('Show Comments');
 					}else{
-						comments.fadeIn();
+						comments.fadeIn().show();
 						GM_removeItem('gpp__hidden_post_id_' + postID);
 						t.text('Hide Comments');
 					}
@@ -109,9 +117,11 @@ function hideComments(){
 				});
 				
 				if(hiddenPostID != '' || hidden_by_default){
-					comments.fadeOut();
-					show_hide.text('Show Comments');
+					comments.hide();
+					show_hide.html('Show Comments');
 				}
+				var comment_count_display = show_hide.next(); //.find('.gpp__comment_count');
+				comment_count_display.empty().append('<span style="font-size:8pt;color:#999">(RECENT: ' + comment_count + ')' + old_comment_count_display + '</span> ');
 				i++;
 			}
 		});
