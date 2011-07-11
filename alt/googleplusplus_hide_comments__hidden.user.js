@@ -3,7 +3,7 @@
 // @author         Micah Wittman
 // @namespace      http://wittman.org/projects/googleplusplus_hide_comments
 // @include        *plus.google.com*
-// @description    Adds a Hide Comments or Show Comments link on each post; this feature is sticky (the hidden or shown state is recorded in the browser's local storage). /*___*/
+// @description    Adds a Hide Comments or Show Comments link on each post; this feature is sticky (the hidden or shown state is recorded in the browser's local storage).  ALTERNATE VERSION: hidden. This version hides all comments by default (as opposed to the standard version shows all comments by default). /*___*/
 // @version        0.1.3
 // ==/UserScript==
 
@@ -119,7 +119,7 @@ function hideComments(){
 	/****** Before Loop Variables ******/
 	/*** Options ***/
 	//Set to 'hidden' to hide all comments by default, or 'shown' to show by default.
-	var visibility_default = 'shown'; /*___hidden*/
+	var visibility_default = 'hidden'; /*___hidden*/
 	
 	/****** Start main_loop ******/
 	main_loop();
