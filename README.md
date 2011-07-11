@@ -35,6 +35,11 @@ Though deprecated, the "top" script is still available at the same short/redirec
 
 ## Change Log
 
+### Version 0.1.4
+
+- Fixed critical bug that cause hiding of comments to flicker. FIX
+- Added Recent and Old Comment count display. NEW
+
 ### Version 0.1.3
 
 - Show/Hide link sometimes not working on first click resolved (enclosing div click event was interfering). FIXED.
