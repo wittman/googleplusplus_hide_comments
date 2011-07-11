@@ -17,6 +17,8 @@ Feedback is welcome.
 
 Alt version **"hidden"** hides all comments by default (as opposed to comments being visible by default using the standard version). The standard and alt versions work exactly the same in all other ways.
 
+>**Install Alternate Version "hidden" - Hide all comments by default"**: <http://go.wittman.org/aydn>
+
 ***Installing more than one version***:
 The scripts are named, namespaced and versioned exactly the same so installing one over-writes a previous primary or alt version. In the description will be an ALTERNATE VERSION clause only in an alt script.
 
