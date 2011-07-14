@@ -4,7 +4,7 @@
 // @namespace      http://wittman.org/projects/googleplusplus_hide_comments
 // @include        *plus.google.com*
 // @description    Adds a Hide Comments or Show Comments link on each post; this feature is sticky (the hidden or shown state is recorded in the browser's local storage).  ALTERNATE VERSION: hidden. This version hides all comments by default (as opposed to the standard version shows all comments by default). /*___*/
-// @version        0.1.4
+// @version        0.1.5
 // ==/UserScript==
 
 
@@ -76,15 +76,15 @@ function hideComments(){
 	function main_loop(){
 
 		var i = 0;
-		$("[id^='update']").find(":contains('Add a comment...')").each(function(){
+		$("[id^='update']").find(".a-b-f-i-W-O[role]").each(function(){
 			var t = $(this);
 			var comments = t.prev();
 			var each_comment = comments.find("img[alt$='profile photo']").parent().parent().parent().parent();
 			
-			var old_comment_count_span = comments.find("span[role]:contains('older comments')");
+			var old_comment_count_span = comments.find("div.a-f-i-WXPuNd .a-b-f-i-gc-cf-Xb-h[role]");
 			var old_comment_count_display = '';
 			if(old_comment_count_span.length > 0){
-				old_comment_count_display = '&nbsp;&nbsp;(OLD: ' + old_comment_count_span.text().replace(' older comments', '') + ' )'; //<span role="button" class="d-h a-b-f-i-gc-cf-Xb-h" tabindex="0">5 older comments</span>	
+				old_comment_count_display = '&nbsp;&nbsp;(OLD: ' + old_comment_count_span.text().replace(' older comments', '') + ')';
 			}
 			var comment_count = each_comment.length;
 			if( each_comment.length > 0 ){
@@ -121,7 +121,7 @@ function hideComments(){
 					show_hide.html('Show Comments');
 				}
 				var comment_count_display = show_hide.next(); //.find('.gpp__comment_count');
-				comment_count_display.empty().append('<span style="font-size:8pt;color:#999">(RECENT: ' + comment_count + ' )' + old_comment_count_display + '</span> ');
+				comment_count_display.empty().append('<span style="font-size:8pt;color:#999">(RECENT: ' + comment_count + ')' + old_comment_count_display + '</span> ');
 				i++;
 			}
 		});
