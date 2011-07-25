@@ -4,11 +4,10 @@
 // @namespace      http://wittman.org/projects/googleplusplus_hide_comments
 // @include        *plus.google.com*
 // @description    Adds a Hide Comments or Show Comments link on each post; this feature is sticky (the hidden or shown state is recorded in the browser's local storage).  ALTERNATE VERSION: hidden. This version hides all comments by default (as opposed to the standard version shows all comments by default). /*___*/
-// @version        0.1.5
+// @version        0.2.1
 // ==/UserScript==
 
-
-function hideComments(){
+function hideComments(){ // v0.2.1
 	var logging = false;
 
 	function log(txt) {
@@ -72,22 +71,51 @@ function hideComments(){
 			return v;
 		}
 	}
-	
-	function main_loop(){
+	function scrollTo(t){
+		$('html,body').animate({
+			scrollTop: t.offset().top},
+			'slow');
+	}
+	function editor_present(update){
+		return update.find('.a-f-i-Xb .tk3N6e-e-vj[role]').length > 0;
+	}
+	function remove_red_color_of_number(comment_count_display){
+		if(comment_count_display.length > 0){
+			comment_count_display.find('.gpp__hide_comments_recent_number').css({color:'#999',fontWeight:'normal'});
+		}
+	}
 
+
+	function main_loop(){
 		var i = 0;
-		$("[id^='update']").find(".a-b-f-i-W-O[role]").each(function(){
+		
+		$("[id^='update']").find(".a-f-i-Xb").each(function(){
 			var t = $(this);
-			var comments = t.prev();
-			var each_comment = comments.find("img[alt$='profile photo']").parent().parent().parent().parent();
-			
-			var old_comment_count_span = comments.find("div.a-f-i-WXPuNd .a-b-f-i-gc-cf-Xb-h[role]");
+			var update = t.parentsUntil("[id^='update']");
+			var plust1_and_comments_link = t.parent().find(".a-f-i-bg"); //a-f-i-bg
+			var comments = t;
+
+			var old_comment_count_span = comments.find("div.a-f-i-WXPuNd span[role]");
+
+			if( old_comment_count_span.hasClass('gpp__comments_hidden_old_shown') ){
+				old_comment_count_span.addClass('gpp__comments_hidden_old_shown');
+				remove_red_color_of_number(comment_count_display);
+			}
+			var old_comment_count = 0;
 			var old_comment_count_display = '';
 			if(old_comment_count_span.length > 0){
-				old_comment_count_display = '&nbsp;&nbsp;(OLD: ' + old_comment_count_span.text().replace(' older comments', '') + ')';
+				old_comment_count = old_comment_count_span.text().match(/\d+/);
+				old_comment_count_display = '&nbsp;&nbsp;(OLD: <span class="gpp__hide_comments_old_number">' + old_comment_count + '</span>)';
 			}
-			var comment_count = each_comment.length;
-			if( each_comment.length > 0 ){
+
+			var recent_comments = update.find('.a-b-f-i-Xb-oa .a-b-f-i-W-r');
+			var recent_comment_count = 0;
+			if(recent_comments.length > 0){
+				recent_comment_count = recent_comments.length;
+			}
+
+			var show_hide;
+			if( recent_comment_count > 0 ){
 				var post = comments.parent().parent();
 				var postID = post.attr('id');
 				var hiddenPostID = GM_getValue('gpp__hidden_post_id_' + postID, '');
@@ -95,46 +123,118 @@ function hideComments(){
 				if( visibility_default == 'hidden' && !comments.hasClass('gpp__comments_hidden_by_default') ){
 					hidden_by_default = true;
 				}
+				
+				
 				if( !comments.hasClass('gpp__comments') ){
 					comments.addClass('gpp__comments_' + i).addClass('gpp__comments');
-					button_html = '<br><span role="button" class="d-h a-b-f-i-gc-cf-Xb-h gpp__comment_show_hide_' + i + '" tabindex="0">Hide Comments</span> <span style="font-size:10pt;color:#999" class="gpp__comment_count"></span><br><br>';
+					button_html = '<br><span role="button" class="d-h a-b-f-i-gc-cf-Xb-h gpp__comment_show_hide gpp__comment_show_hide_' + i + '" tabindex="0">Hide Comments</span> <span style="font-size:10pt;color:#999" class="gpp__comment_count_container"></span><br><br>';
 					comments.after(button_html);
+
+					//console.log('editor_present:'+editor_present);
+					var show_hide = comments.parent().find('.gpp__comment_show_hide_' + i);
+					show_hide.click(function(e){
+						var t = $(this);
+						comments.addClass('gpp__comments_hidden_by_default');
+						if( t.text().indexOf('Hide Comments') > -1 ){
+							if(editor_present(update)){
+								//console.log('editor_present:'+editor_present);
+								if( t.parent().find('.gpp__hide_comments_close_editor_tip').length == 0 ){
+									//console.log('need tip');
+									t.parent().find('.gpp__comment_count_container').append(' <span style="color:darkorange;font-size:9pt" class="gpp__hide_comments_close_editor_tip"><br>Comment Editor must be closed before hiding comments.</span>');
+								}
+							}else{
+								t.parent().find('.gpp__hide_comments_close_editor_tip').remove();
+							}
+							
+							comments.removeClass('gpp__comments_shown');
+							comments.hide();
+							GM_setValue('gpp__hidden_post_id_' + postID, postID);
+							t.text('Show Comments');
+							scrollTo(plust1_and_comments_link);
+						}else{
+							//console.log('click_show');
+							comments.addClass('gpp__comments_shown');
+							comments.show();
+							GM_removeItem('gpp__hidden_post_id_' + postID);
+							t.text('Hide Comments');
+							remove_red_color_of_number(comment_count_display);
+							if(editor_present(update)){
+								comments.hide();
+								comments.removeClass('gpp__comments_shown');
+							}
+							scrollTo(plust1_and_comments_link);
+						}
+						e.preventDefault();
+					});
+				}else{
+					show_hide = t.parent().find('.gpp__comment_show_hide');
 				}
-				var show_hide = comments.parent().find('.gpp__comment_show_hide_' + i);
-				show_hide.click(function(){
-					var t = $(this);
-					comments.addClass('gpp__comments_hidden_by_default');
-					if( t.text().indexOf('Hide Comments') > -1 ){
-						comments.fadeOut().hide();
-						GM_setValue('gpp__hidden_post_id_' + postID, postID);
-						t.text('Show Comments');
-					}else{
-						comments.fadeIn().show();
-						GM_removeItem('gpp__hidden_post_id_' + postID);
-						t.text('Hide Comments');
-					}
-					return false;
-				});
-				
 				if(hiddenPostID != '' || hidden_by_default){
-					comments.hide();
-					show_hide.html('Show Comments');
+					if( !editor_present(update) && !comments.hasClass('gpp__comments_shown') ){ //don't hide if comment editor in DOM
+						comments.hide();
+						show_hide.text('Show Comments');						
+					}
 				}
-				var comment_count_display = show_hide.next(); //.find('.gpp__comment_count');
-				comment_count_display.empty().append('<span style="font-size:8pt;color:#999">(RECENT: ' + comment_count + ')' + old_comment_count_display + '</span> ');
+				
+				var comment_count_display = show_hide.parent().find('.gpp__comment_count_container');
+				if(editor_present(update)){
+					show_hide.text('Hide Comments'); //also set link to Hide Comments if editor present
+					comments.show();
+					comments.addClass('gpp__comments_shown');
+					remove_red_color_of_number(comment_count_display);
+				}
+				if(recent_comment_count > 0 || old_comment_count > 0){
+					
+					var display_recent = comment_count_display.find('.gpp__hide_comments_recent_number');
+					var display_recent_number = 0;
+					var display_old = comment_count_display.find('.gpp__hide_comments_old_number');
+					var display_old_number = 0;
+					if(display_recent.length > 0 && display_recent.text().length > 0){
+						display_recent_number = display_recent.text();
+					}
+					if(display_old.length > 0 && display_old.text().length > 0){
+						display_old_number = display_old.text();
+					}
+
+					var recent_number_html = '<span class="gpp__hide_comments_recent_number">' + recent_comment_count + '</span>';
+					if(loop_count > 0 && show_hide.text().indexOf('Show Comments') > -1 ){
+						try{
+							if(parseInt(recent_comment_count, 10) != parseInt(display_recent_number,10)){
+								recent_number_html = '<span class="gpp__hide_comments_recent_number" style="color:red;font-weight:bold">' + recent_comment_count + '</span>';
+							}
+						}catch(e){}
+					}
+					var comment_count_html = '<span style="font-size:8pt;color:#999">(RECENT: ' + recent_number_html + ')' + old_comment_count_display + '</span> ';
+					
+					if( (recent_comment_count != display_recent_number) || (old_comment_count != display_old_number) ){
+						comment_count_display.empty().append(comment_count_html);
+					}
+				}
 				i++;
 			}
 		});
+		loop_count++;
+		url_current = window.location.href;
+		if( url_current != url_prev){
+			$('.gpp__hide_comments_recent_number').css({color:'#999',fontWeight:'normal'});
+			loop_count = 0; //reset to clear rea numbers
+		}
+		url_prev = url_current;
 	}
+	
 	/****** Before Loop Variables ******/
 	/*** Options ***/
 	//Set to 'hidden' to hide all comments by default, or 'shown' to show by default.
 	var visibility_default = 'hidden'; /*___hidden*/
+	var loop_count = 0;
+	var url_current = window.location.href;
+	var url_prev = url_current;
 	
+
 	/****** Start main_loop ******/
-	main_loop();
 	setInterval(main_loop, 2000);
 }
+
 
 /****** Load jQuery then callback upon load function ******/
 function addJQuery(callback){
@@ -150,6 +250,6 @@ function addJQuery(callback){
 
 /****** Call Load jQuery + callback function ******/
 var protocol = window.location.protocol + '//';
-if(window.location.href.indexOf('/photos') == -1){ //Doesn't work on photos page right now.
+//if(window.location.href.indexOf('/photos') == -1){ //Doesn't work on photos page right now.
 	addJQuery(hideComments);
-}
+//}

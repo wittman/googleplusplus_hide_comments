@@ -35,6 +35,10 @@ Though deprecated, the "top" script is still available at the same short/redirec
 
 ## Change Log
 
+### Version 0.2.1
+
+- Hide emergent comments now and updates the Recent and Old comment counts in real-time. NEW
+
 ### Version 0.1.5
 
 - Extension is functionally, language independent (not dependant on English present in the page). NEW
