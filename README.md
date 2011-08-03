@@ -35,6 +35,10 @@ Though deprecated, the "top" script is still available at the same short/redirec
 
 ## Change Log
 
+### Version 0.2.2
+
+- Changes made today by Google introduced breaking DOM tree changes. All modules needed updating and are now fixed. FIX
+
 ### Version 0.2.1
 
 - Hide emergent comments now and updates the Recent and Old comment counts in real-time. NEW
