@@ -4,10 +4,10 @@
 // @namespace      http://wittman.org/projects/googleplusplus_hide_comments
 // @include        *plus.google.com*
 // @description    Adds a Hide Comments or Show Comments link on each post; this feature is sticky (the hidden or shown state is recorded in the browser's local storage).  ALTERNATE VERSION: hidden. This version hides all comments by default (as opposed to the standard version shows all comments by default). /*___*/
-// @version        0.2.2
+// @version        0.2.3
 // ==/UserScript==
 
-function hideComments(){ // v0.2.2
+function hideComments(){ // v0.2.3
 	var logging = false;
 
 	function log(txt) {
@@ -78,7 +78,8 @@ function hideComments(){ // v0.2.2
 	}
 	function editor_present(update){
 		//return update.find('.a-f-i-Xb .tk3N6e-e-vj[role]').length > 0; OLD
-		return update.find('.l-e-O[role]').length > 0; //NEW
+		//return update.find('.l-e-O[role]').length > 0; //OLD
+		return update.find('.d-q-p[role]').length > 0; //NEW
 	}
 	function remove_red_color_of_number(comment_count_display){
 		if(comment_count_display.length > 0){
@@ -91,15 +92,19 @@ function hideComments(){ // v0.2.2
 		var i = 0;
 		
 		//$("[id^='update']").find(".a-f-i-Xb").each(function(){ OLD
-		$("[id^='update'] > .Wh .Oq").each(function(){ //NEW
+		//$("[id^='update'] > .Wh .Oq").each(function(){ //OLD
+		$("[id^='update'] .Gq").each(function(){ //NEW
 			var t = $(this);
 			var update = t.parentsUntil("[id^='update']");
 			//var plust1_and_comments_link = t.parent().find(".a-f-i-bg"); //OLD
-			var plust1_and_comments_link = update.find(".Xn"); //NEW
-			var comments = update.find('.em');
+			//var plust1_and_comments_link = update.find(".Xn"); //OLD
+			var plust1_and_comments_link = update.find(".Jn"); //NEW
+			//var comments = update.find('.em');
+			var comments = t; //.find('.Ly');
 
 			//var old_comment_count_span = comments.find("div.a-f-i-WXPuNd span[role]"); //OLD
-			var old_comment_count_span = comments.find("div.Lt span[role]"); //NEW
+			//var old_comment_count_span = comments.find("div.Lt span[role]"); //OLD
+			var old_comment_count_span = comments.find("div.Ft span[role]"); //NEW
 			
 			if( old_comment_count_span.hasClass('gpp__comments_hidden_old_shown') ){
 				old_comment_count_span.addClass('gpp__comments_hidden_old_shown');
@@ -114,7 +119,7 @@ function hideComments(){ // v0.2.2
 
 			//var recent_comments = update.find('.a-b-f-i-Xb-oa .a-b-f-i-W-r'); //OLD
 			//<div class="Py vl"><div class="Lt Lq"><span role="button" class="d-k Yk" tabindex="0">4 more comments</span> <span class="jv">from <span class="mr">Evelyn Barney, Jorge Escobar, Martin Watson&nbsp;and&nbsp;Rae Ouzts</span></span></div><div class="Zn"></div></div>
-			var recent_comments = update.find('.Oy'); //NEW
+			var recent_comments = update.find('.Gq .Ly'); //NEW
 			var recent_comment_count = 0;
 			if(recent_comments.length > 0){
 				recent_comment_count = recent_comments.length;
@@ -134,7 +139,7 @@ function hideComments(){ // v0.2.2
 				if( !comments.hasClass('gpp__comments') ){
 					comments.addClass('gpp__comments_' + i).addClass('gpp__comments');
 					//button_html = '<br><span role="button" class="d-h a-b-f-i-gc-cf-Xb-h gpp__comment_show_hide gpp__comment_show_hide_' + i + '" tabindex="0">Hide Comments</span> <span style="font-size:10pt;color:#999" class="gpp__comment_count_container"></span><br><br>'; OLD
-					button_html = '<br><span role="button" class="d-k gpp__comment_show_hide gpp__comment_show_hide_' + i + '" tabindex="0">Hide Comments</span> <span style="font-size:10pt;color:#999" class="gpp__comment_count_container"></span><br><br>';//NEW
+					button_html = '<br><span role="button" class="d-k gpp__comment_show_hide gpp__comment_show_hide_' + i + '" tabindex="0">Hide Comments</span> <span style="font-size:10pt;color:#999" class="gpp__comment_count_container"></span><br><br>';
 					comments.after(button_html);
 
 					//console.log('editor_present:'+editor_present);
@@ -237,10 +242,10 @@ function hideComments(){ // v0.2.2
 	var url_current = window.location.href;
 	var url_prev = url_current;
 	
-
 	/****** Start main_loop ******/
 	setInterval(main_loop, 2000);
 }
+
 
 
 /****** Load jQuery then callback upon load function ******/
